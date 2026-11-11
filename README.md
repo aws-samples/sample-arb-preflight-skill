@@ -16,10 +16,6 @@ and writes:
 
 Scope: **AWS**, **documents only**. No code, no IaC, no live account inspection.
 
-> This is an example / reference implementation. It ships with starter standards marked
-> `[DEFAULT — CONFIRM]` or `[TBD]`. Replace them with your own policy before relying on
-> the output. It recommends; it never approves.
-
 ---
 
 ## Why this rather than a good prompt

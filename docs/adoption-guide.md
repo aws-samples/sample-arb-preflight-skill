@@ -137,26 +137,7 @@ tool at all.
 
 ---
 
-## 6. First four weeks
-
-| Week | Who | What | Done when |
-|---|---|---|---|
-| 1 | Operational Resilience | Confirm `criticality-tiering.md` | Tier matrix signed and dated |
-| 1 | Governance | Calibrate against three past submissions | Three gap lists produced |
-| 1 | Security | Review the tool itself and the model endpoint | Written sign-off to use it on real designs |
-| 2 | Cloud Platform, Security Architecture | Bulk-import their baselines, confirm clause by clause | Clauses moved off `[TBD]` |
-| 2 | Compliance | Set `Applies` per entity; populate internal control IDs for the obligations in play | Relevant rows populated |
-| 3 | Each review team | Read and annotate its own rubric file | Seven annotated files returned |
-| 3 | Governance | Merge annotations; adjust severities | Rubric v1.1 |
-| 4 | Governance | Re-run the three calibration submissions | Verdict changes explained |
-| 4 | Governance + board chair | Agree the operating model (below) and the baseline metrics | Model chosen, baseline captured |
-
-Weeks 1 and 2 need one table, three old submissions and a security review. That is the whole
-entry cost, and it is worth doing before committing to anything larger.
-
----
-
-## 7. Operating model, chosen in week 4
+## 6. Operating model
 
 **Gate model.** The governance function runs the pre-review and a submission does not reach
 human reviewers until it clears the intake gate. Stronger control, and it positions the tool
@@ -172,7 +153,7 @@ arguments about the tool rather than fixes to the design.
 
 ---
 
-## 8. Measuring it
+## 7. Measuring it
 
 Capture the first three **before** the pilot. Without a baseline the improvement is an
 anecdote.
@@ -194,7 +175,7 @@ any single review.
 
 ---
 
-## 9. Harvest from the first reviews
+## 8. Harvest from the first reviews
 
 A useful by-product: when a reviewer finds a genuine concern with no matching rule, it comes
 out as `Advisory` with rule ID `NONE` plus a proposal for the clause that should exist. That
@@ -214,7 +195,7 @@ of your own submissions rather than from a template.
 
 ---
 
-## 10. Pitfalls
+## 9. Pitfalls
 
 | Pitfall | Why it happens | Counter |
 |---|---|---|
@@ -228,7 +209,7 @@ of your own submissions rather than from a template.
 
 ---
 
-## 11. Adoption is done when
+## 10. Adoption is done when
 
 - Every standards file has a named owner and no `[TBD]` in the sections your designs
   actually touch.
@@ -239,5 +220,3 @@ of your own submissions rather than from a template.
 - Your security function has signed off the tool and the model endpoint.
 - One real submission has gone through pre-review, remediation, re-review and the board,
   with conditions tracked from `findings.json`.
-
-That last line is the real test. Everything before it is preparation.
