@@ -1,0 +1,20 @@
+# Review outputs and submissions may contain confidential designs
+reviews/
+submissions/
+extracted/
+*.pptx
+*.docx
+
+# The demo submission must stay in the repository: it is what makes the skill runnable
+# without a real submission. Named rather than globbed, so that dropping any other
+# document into samples/ stays ignored — adding one should be a conscious line here.
+# Test fixture documents are built at test time and never committed.
+!samples/northwind-payments/northwind-payment-hub-hld-v0.7.pptx
+
+# OS / tooling
+~$*
+.DS_Store
+__pycache__/
+*.pyc
+dist/
+.ci-skills/

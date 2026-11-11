@@ -1,0 +1,74 @@
+{
+  "_comment": "Judgement input for scripts/synthesise.py. The model writes this after reading the seven reviewer files; the script does everything mechanical. Only 'groups' and 'application' are required. Delete keys you do not use.",
+  "review_date": "2026-10-21",
+  "application": {
+    "name": "Checkout Replatform",
+    "tier": "1",
+    "tier_source": "intake",
+    "business_owner": "Head of Digital Commerce",
+    "technical_owner": "Principal Engineer, Checkout",
+    "data_classes": ["customer personal data", "payment tokens"],
+    "jurisdictions": ["United Kingdom"],
+    "regimes_in_scope": []
+  },
+  "submission": {
+    "files": ["checkout-replatform-v0.9.pptx"],
+    "version": "0.9",
+    "dated": "2026-10-01",
+    "change_type": "migration",
+    "slides": 24,
+    "words": 2300,
+    "viewable_diagrams": 9,
+    "unreadable_diagrams": 0
+  },
+  "target_go_live": "2027-03-01",
+  "board_date": "2027-01-20",
+  "intake_failed": false,
+  "_severity_context": "Facts that resolve conditional rubric severities ('Blocker (internet-facing or T1)', 'Major; Blocker for critical providers'). Tier, change type, regimes in scope and prior-review regressions are taken from the fields above and from --prior; these are the ones the script cannot derive. Omit a flag you cannot evidence: the condition is then left unresolved and the run warns, which is the honest outcome.",
+  "severity_context": {
+    "internet_facing": true,
+    "critical_providers": true,
+    "no_non_prod_before_cutover": false,
+    "value_bearing": true,
+    "radar_hold": false
+  },
+  "summary": "Two or three sentences for the business owner: what the design gets right, then the reason for the verdict.",
+  "_commitments": "Who has committed to fix what, by when. Keyed by rule ID or by finding ID; a rule ID survives renumbering across re-reviews, so prefer it. A Major with no owner and no date is not a condition the board can hold anyone to, so the verdict is held at 'Insufficient information' until every live Major has both. Reviewers supply the owning role; the date comes from the team.",
+  "commitments": {
+    "RES-DR-002": {"owner": "Principal Engineer, Checkout", "due": "2027-01-10"},
+    "F-004": {"owner": "Security Architecture", "due": "2027-02-01"}
+  },
+  "groups": [
+    {
+      "primary": "RES-DR-002",
+      "members": ["RES-DR-001", "RES-BKP-002"],
+      "title": "Optional override of the primary finding's title",
+      "severity": "Optional: one level up or down from the computed severity",
+      "reason": "Required when 'severity' is set",
+      "note": "Optional extra note",
+      "due_date": "2027-01-10"
+    }
+  ],
+  "contradictions": [
+    {"claim": "RTO 15 minutes", "claim_anchor": "Slide 14", "conflict": "Restore from cross-region backup", "conflict_anchor": "Slide 22", "finding_id": "F-001"}
+  ],
+  "fix_before_board": [
+    {"action": "State the DR pattern and timed recovery sequence", "closes": ["F-001"], "owner": "Solution Architect", "effort": "Days"}
+  ],
+  "pre_read_note": "One sentence on which mandatory intake artefacts are missing.",
+  "strengths": {"LZ": "Private subnets behind central egress", "SEC": "", "DAT": "", "RES": "", "INT": "", "OPS": "", "REG": ""},
+  "board_questions": [
+    {"q": "Your RTO is 15 minutes. Walk me through the 15 minutes.", "state": "no answer"}
+  ],
+  "board": {
+    "summary": "One paragraph for non-engineers. Defaults to 'summary' above.",
+    "decisions": [{"decision": "Approve single-region phase 1", "recommendation": "Defer"}],
+    "conditions": [{"condition": "Warm standby before go-live", "owner": "Solution Architect", "by": "2027-02-15"}],
+    "risks": [{"risk": "Regional outage", "impact": "Checkout unavailable for hours", "mitigation": "Multi-AZ only", "authority": "Head of Digital Commerce"}],
+    "resilience": [["RTO", "15 min", "≤ 15 min", "Not deliverable with backup-restore"]],
+    "regulatory": [["Regimes in scope", "Applicability unconfirmed — Compliance to resolve"]]
+  },
+  "submission_integrity": [],
+  "limitations_extra": "Any assumption to verify, e.g. vendor support statements taken from general knowledge.",
+  "timings": {"extract": "0m20s", "fact sheet": "3m", "reviewers": "6m", "synthesis": "2m"}
+}

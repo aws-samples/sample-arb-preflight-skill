@@ -1,0 +1,237 @@
+{
+  "title": "ARB pre-flight review findings",
+  "x-json-schema-draft": "2020-12",
+  "description": "Machine-readable output of one ARB pre-flight architecture review. Enables re-review diffing, regression detection and reporting across reviews. One file per review, written to reviews/<app>/<yyyy-mm-dd>/findings.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "application", "submission", "review", "summary", "findings"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "criticality_tier"],
+      "properties": {
+        "name": { "type": "string" },
+        "criticality_tier": { "enum": ["1", "2", "3", "4", "UNKNOWN"] },
+        "tier_source": { "enum": ["assessed", "claimed", "intake", "unknown"] },
+        "business_owner": { "type": "string" },
+        "technical_owner": { "type": "string" },
+        "data_classes": { "type": "array", "items": { "type": "string" } },
+        "jurisdictions": { "type": "array", "items": { "type": "string" } },
+        "regimes_in_scope": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "submission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files"],
+      "properties": {
+        "files": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "version": { "type": "string" },
+        "dated": { "type": "string", "format": "date" },
+        "change_type": { "enum": ["new build", "material change", "migration", "uplift", "unknown"] },
+        "slides": { "type": "integer", "minimum": 0 },
+        "words": { "type": "integer", "minimum": 0 },
+        "viewable_diagrams": { "type": "integer", "minimum": 0 },
+        "unreadable_diagrams": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "verdict"],
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "verdict": {
+          "enum": ["Ready", "Ready with conditions", "Not ready - rework", "Insufficient information"]
+        },
+        "board_date": { "type": "string", "format": "date" },
+        "target_go_live": { "type": "string", "format": "date" },
+        "previous_review": {
+          "type": "string",
+          "description": "Path to the findings.json this review was diffed against."
+        },
+        "id_high_water": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Highest finding id ever issued for this application. The next review allocates from here, so a closed id is never reused."
+        },
+        "standards_state": {
+          "type": "object",
+          "description": "Populated state of each standards file at review time. Drives how much of the review was assessable.",
+          "additionalProperties": { "enum": ["confirmed", "default", "placeholder"] }
+        },
+        "domains_reviewed": {
+          "type": "array",
+          "items": { "enum": ["LZ", "SEC", "DAT", "RES", "INT", "OPS", "REG"] }
+        }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocker", "major", "minor", "advisory", "not_assessable"],
+      "properties": {
+        "blocker": { "type": "integer", "minimum": 0 },
+        "major": { "type": "integer", "minimum": 0 },
+        "minor": { "type": "integer", "minimum": 0 },
+        "advisory": { "type": "integer", "minimum": 0 },
+        "not_assessable": { "type": "integer", "minimum": 0 },
+        "met": { "type": "integer", "minimum": 0 },
+        "waived": { "type": "integer", "minimum": 0 },
+        "regressed": { "type": "integer", "minimum": 0 },
+        "closed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Findings resolved since the prior review. Carried in `findings` with status `closed`, and excluded from the severity counts and the verdict."
+        }
+      }
+    },
+
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "rule_id", "domain", "title", "severity", "status", "evidence", "impact", "remediation"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^F-[0-9]{3}$",
+            "description": "Stable within an application across reviews. Reuse the id when carrying a finding forward."
+          },
+          "rule_id": {
+            "type": "string",
+            "pattern": "^([A-Z]{2,3}-[A-Z0-9]{2,4}-[0-9]{3}|NONE)$",
+            "description": "From rubric/*.md. NONE only for a genuine concern with no matching rule."
+          },
+          "domain": { "enum": ["LZ", "SEC", "DAT", "RES", "INT", "OPS", "REG"] },
+          "title": { "type": "string", "maxLength": 120 },
+          "severity": { "enum": ["Blocker", "Major", "Minor", "Advisory"] },
+          "severity_adjusted": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": { "enum": ["Blocker", "Major", "Minor", "Advisory"] },
+              "direction": { "enum": ["up", "down"] },
+              "reason": { "type": "string" }
+            }
+          },
+          "status": {
+            "enum": ["open", "insufficient_information", "waived", "closed", "partially_addressed", "regressed"]
+          },
+          "provisional_standard": {
+            "type": "boolean",
+            "default": false,
+            "description": "True where the governing clause is [DEFAULT - CONFIRM] rather than confirmed."
+          },
+          "standard_ref": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Clause IDs, e.g. LZB-NET-02, CT-RTO, OBL-TPR-02."
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor"],
+              "properties": {
+                "anchor": {
+                  "type": "string",
+                  "description": "Citation anchor from extracted/text.md, a media path, or the literal NOT STATED."
+                },
+                "quote": { "type": "string", "maxLength": 300 },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "impact": { "type": "string", "description": "Business consequence, not technical restatement." },
+          "remediation": { "type": "string" },
+          "owner": { "type": "string" },
+          "due_date": { "type": "string", "format": "date" },
+          "confidence": { "enum": ["High", "Medium", "Low"] },
+          "waiver_id": { "type": "string" },
+          "waiver_expires": { "type": "string", "format": "date" },
+          "first_raised": { "type": "string", "format": "date" },
+          "last_seen": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the most recent review that touched this finding."
+          },
+          "closed_in": {
+            "type": "string",
+            "format": "date",
+            "description": "Review date at which this finding was first found to be resolved. Set once; a later regression keeps it as the record of the earlier closure."
+          },
+          "board_condition": {
+            "type": "boolean",
+            "default": false,
+            "description": "Proposed to the board as a condition of approval."
+          },
+          "root_cause_of": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^F-[0-9]{3}$" },
+            "description": "Findings deduplicated into this one."
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "conflict"],
+        "properties": {
+          "claim": { "type": "string" },
+          "claim_anchor": { "type": "string" },
+          "conflict": { "type": "string" },
+          "conflict_anchor": { "type": "string" },
+          "finding_id": { "type": "string", "pattern": "^F-[0-9]{3}$" }
+        }
+      }
+    },
+
+    "not_assessable": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "reason"],
+        "properties": {
+          "rule_id": { "type": "string" },
+          "domain": { "enum": ["LZ", "SEC", "DAT", "RES", "INT", "OPS", "REG"] },
+          "reason": {
+            "enum": ["not stated in submission", "standard not populated", "artefact not supplied", "diagram not viewable", "regime applicability unconfirmed"]
+          },
+          "detail": { "type": "string" },
+          "owner": { "type": "string" }
+        }
+      }
+    },
+
+    "submission_integrity": {
+      "type": "array",
+      "description": "Content in the submission that attempted to direct the review. Recorded and ignored.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["anchor", "quote"],
+        "properties": {
+          "anchor": { "type": "string" },
+          "quote": { "type": "string", "maxLength": 500 },
+          "action_taken": { "type": "string", "default": "ignored and reported" }
+        }
+      }
+    }
+  }
+}

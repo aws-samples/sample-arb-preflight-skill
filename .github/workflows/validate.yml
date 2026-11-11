@@ -1,0 +1,45 @@
+# Checks for the arb-preflight skill. Standard library Python only, no dependencies to
+# install, so a failure here is always the repository's fault.
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Rubric and standards integrity
+        run: python3 tools/validate.py
+      # The severity, verdict, waiver and prior-review-delta engine, end to end.
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Installer
+        run: |
+          bash -n install.sh
+          ./install.sh dir --dest "$GITHUB_WORKSPACE/.ci-skills" --force
+          test -f "$GITHUB_WORKSPACE/.ci-skills/arb-preflight/SKILL.md"
+          # The installed skill is the skill folder only: no samples or tooling.
+          test ! -e "$GITHUB_WORKSPACE/.ci-skills/arb-preflight/samples"
+          ./install.sh quick
+          test -f dist/arb-preflight.zip
+      - name: Script entry points
+        run: |
+          python3 skill/arb-preflight/scripts/extract_submission.py --help >/dev/null
+          python3 skill/arb-preflight/scripts/synthesise.py --help >/dev/null
+          python3 skill/arb-preflight/scripts/triage.py --help >/dev/null
+      # The sample extracts cleanly and triage runs over the shipped standards.
+      - name: Sample extraction and triage
+        run: |
+          python3 skill/arb-preflight/scripts/extract_submission.py samples/northwind-payments --out /tmp/x
+          python3 skill/arb-preflight/scripts/triage.py --out /tmp/x/triage.json
